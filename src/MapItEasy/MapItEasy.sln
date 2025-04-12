@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapItEasy.Demo", "MapItEasy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapItEasy", "MapItEasy\MapItEasy.csproj", "{AE75D69F-D693-4A47-BCEB-4EE39A260BBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapItEasy.Tests", "MapItEasy.Tests\MapItEasy.Tests.csproj", "{E03A6733-D7C1-4086-BAC7-B60B9FCC0B1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AE75D69F-D693-4A47-BCEB-4EE39A260BBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE75D69F-D693-4A47-BCEB-4EE39A260BBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE75D69F-D693-4A47-BCEB-4EE39A260BBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E03A6733-D7C1-4086-BAC7-B60B9FCC0B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E03A6733-D7C1-4086-BAC7-B60B9FCC0B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E03A6733-D7C1-4086-BAC7-B60B9FCC0B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E03A6733-D7C1-4086-BAC7-B60B9FCC0B1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
