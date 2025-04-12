@@ -3,28 +3,47 @@
 IMapper mapper = new ReflectionMapper();
 //IMapper mapper = new ExpressionMapper();
 
-var test1 = mapper.Map<A, B>(new A { Id = 1, Name = "abc1", Description = "xyz1" });
+var email = new Email
+{
+    Id = 1,
+    From = "abc1",
+    To = "xyz1"
+};
 
-var test2 = new B();
-mapper.Map(new A { Id = 2, Name = "abc2", Description = "xyz2" }, test2);
+ReturnNewObject();
+MapExistingObject();
 
 Console.ReadLine();
 
-
-public class A
+void ReturnNewObject()
 {
-    public int Id { get; set; }
-
-    public string Name { get; set; }
-
-    public string Description { get; set; }
+    var archivedEmail1 = mapper.Map<Email, ArchivedEmail>(email);
 }
 
-public class B
+void MapExistingObject()
+{
+    var archivedEmail = new ArchivedEmail();
+    mapper.Map(email, archivedEmail);
+}
+
+public class Email
 {
     public int Id { get; set; }
 
-    public string Name { get; set; }
+    public string From { get; set; }
 
-    public string Description { get; set; }
+    public string To { get; set; }
+
+    public string Body { get; set; }
+}
+
+public class ArchivedEmail
+{
+    public int Id { get; set; }
+
+    public string From { get; set; }
+
+    public string To { get; set; }
+
+    public string Body { get; set; }
 }
