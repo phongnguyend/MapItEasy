@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMapper.Demo", "SimpleMapper.Demo\SimpleMapper.Demo.csproj", "{937FE288-D1E5-403C-854B-776136DF3B9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapItEasy.Demo", "MapItEasy.Demo\MapItEasy.Demo.csproj", "{937FE288-D1E5-403C-854B-776136DF3B9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMapper", "SimpleMapper\SimpleMapper.csproj", "{AE75D69F-D693-4A47-BCEB-4EE39A260BBB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapItEasy", "MapItEasy\MapItEasy.csproj", "{AE75D69F-D693-4A47-BCEB-4EE39A260BBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

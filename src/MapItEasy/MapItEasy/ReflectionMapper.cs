@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace SimpleMapper;
+namespace MapItEasy;
 
 public class ReflectionMapper : IMapper
 {

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace SimpleMapper;
+namespace MapItEasy;
 
 public class ExpressionMapper : IMapper
 {

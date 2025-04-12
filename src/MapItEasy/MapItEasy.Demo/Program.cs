@@ -1,6 +1,4 @@
-﻿
-
-using SimpleMapper;
+﻿using MapItEasy;
 
 IMapper mapper = new ReflectionMapper();
 //IMapper mapper = new ExpressionMapper();
