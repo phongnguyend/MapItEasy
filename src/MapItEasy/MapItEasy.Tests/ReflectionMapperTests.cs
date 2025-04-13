@@ -36,6 +36,12 @@ public class ReflectionMapperTests
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public string Age { get; set; }
+
+        public int NotNullToNull { get; set; }
+
+        public int? NullToNotNull { get; set; }
     }
 
     public class B
@@ -45,5 +51,11 @@ public class ReflectionMapperTests
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public int Age { get; set; }
+
+        public int? NotNullToNull { get; set; }
+
+        public int NullToNotNull { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MapItEasy;
 
@@ -34,7 +35,20 @@ public class ExpressionMapper : IMapper
                     continue;
                 }
 
-                var assign = Expression.Assign(Expression.MakeMemberAccess(toParam, toProp), Expression.MakeMemberAccess(fromParam, fromProp));
+                if (!IsAssignable(fromProp, toProp))
+                {
+                    continue;
+                }
+
+                Expression left = Expression.MakeMemberAccess(toParam, toProp);
+                Expression right = Expression.MakeMemberAccess(fromParam, fromProp);
+
+                if (IsNullable(toProp.PropertyType) && !IsNullable(fromProp.PropertyType))
+                {
+                    right = Expression.Convert(right, toProp.PropertyType);
+                }
+
+                var assign = Expression.Assign(left, right);
                 assigns.Add(assign);
             }
 
@@ -46,6 +60,29 @@ public class ExpressionMapper : IMapper
         }
 
         return _cache[key];
+    }
+
+    private static bool IsAssignable(PropertyInfo from, PropertyInfo to)
+    {
+        var fromType = Nullable.GetUnderlyingType(from.PropertyType) ?? from.PropertyType;
+        var toType = Nullable.GetUnderlyingType(to.PropertyType) ?? to.PropertyType;
+
+        if (fromType != toType)
+        {
+            return false;
+        }
+
+        if (IsNullable(from.PropertyType) && !IsNullable(to.PropertyType))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsNullable(Type type)
+    {
+        return Nullable.GetUnderlyingType(type) != null;
     }
 
     public TTarget Map<TSource, TTarget>(TSource source) where TTarget : class, new()
