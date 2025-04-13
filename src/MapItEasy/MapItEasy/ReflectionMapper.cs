@@ -34,6 +34,16 @@ public class ReflectionMapper : IMapper
                     continue;
                 }
 
+                if (!from.IsAssignableTo(to))
+                {
+                    continue;
+                }
+
+                if(from.GetMethod == null || to.SetMethod == null)
+                {
+                    continue;
+                }
+
                 entry.Add((from.GetMethod, to.SetMethod));
             }
 

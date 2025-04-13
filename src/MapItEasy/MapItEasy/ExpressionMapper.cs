@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 
 namespace MapItEasy;
 
@@ -26,7 +25,7 @@ public class ExpressionMapper : IMapper
             var fromParam = Expression.Parameter(key.From);
             var toParam = Expression.Parameter(key.To);
 
-            List<BinaryExpression> assigns = [];
+            List<Expression> assigns = [];
             foreach (var fromProp in key.From.GetProperties())
             {
                 var toProp = key.To.GetProperty(fromProp.Name);
@@ -35,21 +34,49 @@ public class ExpressionMapper : IMapper
                     continue;
                 }
 
-                if (!IsAssignable(fromProp, toProp))
+                if (!fromProp.IsAssignableTo(toProp))
                 {
                     continue;
                 }
 
-                Expression left = Expression.MakeMemberAccess(toParam, toProp);
-                Expression right = Expression.MakeMemberAccess(fromParam, fromProp);
-
-                if (IsNullable(toProp.PropertyType) && !IsNullable(fromProp.PropertyType))
+                if (fromProp.PropertyType.IsNullable() && !toProp.PropertyType.IsNullable())
                 {
-                    right = Expression.Convert(right, toProp.PropertyType);
-                }
+                    // from.Property != null
+                    var notNullCheck = Expression.NotEqual(Expression.MakeMemberAccess(fromParam, fromProp), Expression.Constant(null));
 
-                var assign = Expression.Assign(left, right);
-                assigns.Add(assign);
+                    // to.Property
+                    Expression left = Expression.MakeMemberAccess(toParam, toProp);
+
+                    // from.Property
+                    Expression right = Expression.MakeMemberAccess(fromParam, fromProp);
+                    right = Expression.Convert(right, toProp.PropertyType);
+
+                    // to.Property = from.Property;
+                    var assign = Expression.Assign(left, right);
+
+                    // if (from.Property != null) { to.Property = from.Property; }
+                    var ifBlock = Expression.IfThen(notNullCheck, assign);
+
+                    assigns.Add(ifBlock);
+                }
+                else
+                {
+                    // to.Property
+                    Expression left = Expression.MakeMemberAccess(toParam, toProp);
+
+                    // from.Property
+                    Expression right = Expression.MakeMemberAccess(fromParam, fromProp);
+
+                    if (toProp.PropertyType.IsNullable() && !fromProp.PropertyType.IsNullable())
+                    {
+                        right = Expression.Convert(right, toProp.PropertyType);
+                    }
+
+                    // to.Property = from.Property;
+                    var assign = Expression.Assign(left, right);
+
+                    assigns.Add(assign);
+                }
             }
 
             var body = Expression.Block(assigns);
@@ -60,29 +87,6 @@ public class ExpressionMapper : IMapper
         }
 
         return _cache[key];
-    }
-
-    private static bool IsAssignable(PropertyInfo from, PropertyInfo to)
-    {
-        var fromType = Nullable.GetUnderlyingType(from.PropertyType) ?? from.PropertyType;
-        var toType = Nullable.GetUnderlyingType(to.PropertyType) ?? to.PropertyType;
-
-        if (fromType != toType)
-        {
-            return false;
-        }
-
-        if (IsNullable(from.PropertyType) && !IsNullable(to.PropertyType))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private static bool IsNullable(Type type)
-    {
-        return Nullable.GetUnderlyingType(type) != null;
     }
 
     public TTarget Map<TSource, TTarget>(TSource source) where TTarget : class, new()

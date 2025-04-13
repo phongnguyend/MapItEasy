@@ -34,6 +34,61 @@ public abstract class BaseMapperTests
         Assert.Equal("xyz1", target.Description);
     }
 
+    [Fact]
+    public void IfTypesUnmatched_Should_Ignore_1()
+    {
+        var source = new A { Age = "1" };
+        var target = new B();
+
+        _mapper.Map(source, target);
+
+        Assert.Equal(0, target.Age);
+    }
+
+    [Fact]
+    public void IfTypesUnmatched_Should_Ignore_2()
+    {
+        var source = new B { Age = 1 };
+        var target = new A();
+
+        _mapper.Map(source, target);
+
+        Assert.Null(target.Age);
+    }
+
+    [Fact]
+    public void NotNullToNull_Should_Map()
+    {
+        var source = new A { NotNullToNull = 1 };
+        var target = new B();
+
+        _mapper.Map(source, target);
+
+        Assert.Equal(1, target.NotNullToNull);
+    }
+
+    [Fact]
+    public void NullToNotNull_Should_Ignore()
+    {
+        var source = new A { NullToNotNull = null };
+        var target = new B();
+
+        _mapper.Map(source, target);
+
+        Assert.Equal(0, target.NullToNotNull);
+    }
+
+    [Fact]
+    public void NullToNotNull_Should_Map()
+    {
+        var source = new A { NullToNotNull = 1 };
+        var target = new B();
+
+        _mapper.Map(source, target);
+
+        Assert.Equal(1, target.NullToNotNull);
+    }
+
     public class A
     {
         public int Id { get; set; }
