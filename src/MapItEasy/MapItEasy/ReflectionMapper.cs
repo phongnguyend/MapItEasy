@@ -94,7 +94,7 @@ public class ReflectionMapper : IMapper
 
     public void MapExclude<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
     {
-        MapWithoutProperties(source, target, propertiesSelector.Body.GetMemberNames().ToArray());
+        MapExclude(source, target, propertiesSelector.Body.GetMemberNames().ToArray());
     }
 
     private void MapProperties<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
@@ -119,7 +119,7 @@ public class ReflectionMapper : IMapper
         }
     }
 
-    private void MapWithoutProperties<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
+    private void MapExclude<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
     {
         var key = (from: typeof(TSource), to: typeof(TTarget));
 
