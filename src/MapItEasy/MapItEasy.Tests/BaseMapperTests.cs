@@ -89,6 +89,58 @@ public abstract class BaseMapperTests
         Assert.Equal(1, target.NullToNotNull);
     }
 
+    [Fact]
+    public void MapProperties()
+    {
+        var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+        var target = new B();
+
+        _mapper.MapProperties(source, target, x => new { x.Name });
+
+        Assert.Equal(0, target.Id);
+        Assert.Equal("abc1", target.Name);
+        Assert.Null(target.Description);
+    }
+
+    [Fact]
+    public void MapProperties2()
+    {
+        var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+        var target = new B();
+
+        _mapper.MapProperties(source, target, x => new { });
+
+        Assert.Equal(0, target.Id);
+        Assert.Null(target.Name);
+        Assert.Null(target.Description);
+    }
+
+    [Fact]
+    public void MapExclude()
+    {
+        var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+        var target = new B();
+
+        _mapper.MapExclude(source, target, x => new { x.Name });
+
+        Assert.Equal(1, target.Id);
+        Assert.Null(target.Name);
+        Assert.Equal("xyz1", target.Description);
+    }
+
+    [Fact]
+    public void MapExclude2()
+    {
+        var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+        var target = new B();
+
+        _mapper.MapExclude(source, target, x => new { });
+
+        Assert.Equal(1, target.Id);
+        Assert.Equal("abc1", target.Name);
+        Assert.Equal("xyz1", target.Description);
+    }
+
     public class A
     {
         public int Id { get; set; }

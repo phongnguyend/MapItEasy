@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MapItEasy;
 
@@ -6,9 +7,9 @@ public class ExpressionMapper : IMapper
 {
     static readonly object _lock = new();
 
-    private static readonly Dictionary<(Type From, Type To), Delegate> _cache = [];
+    private static readonly Dictionary<(Type From, Type To, MapType MapType), Delegate> _cache = [];
 
-    private static Delegate GetOrAdd((Type From, Type To) key)
+    private static Delegate GetOrAdd((Type From, Type To, MapType MapType) key)
     {
         if (_cache.ContainsKey(key))
         {
@@ -24,6 +25,7 @@ public class ExpressionMapper : IMapper
 
             var fromParam = Expression.Parameter(key.From);
             var toParam = Expression.Parameter(key.To);
+            var propertiesParam = Expression.Parameter(typeof(string[]));
 
             List<Expression> assigns = [];
             foreach (var fromProp in key.From.GetProperties())
@@ -57,7 +59,20 @@ public class ExpressionMapper : IMapper
                     // if (from.Property != null) { to.Property = from.Property; }
                     var ifBlock = Expression.IfThen(notNullCheck, assign);
 
-                    assigns.Add(ifBlock);
+                    if (key.MapType == MapType.SelectedProperties)
+                    {
+                        // if(properties.Contains(propertyName))
+                        assigns.Add(CreateContainsCheckExpression(fromProp.Name, propertiesParam, ifBlock));
+                    }
+                    else if (key.MapType == MapType.ExcludedProperties)
+                    {
+                        // if(!properties.Contains(propertyName))
+                        assigns.Add(CreateNotContainsCheckExpression(fromProp.Name, propertiesParam, ifBlock));
+                    }
+                    else
+                    {
+                        assigns.Add(ifBlock);
+                    }
                 }
                 else
                 {
@@ -75,18 +90,70 @@ public class ExpressionMapper : IMapper
                     // to.Property = from.Property;
                     var assign = Expression.Assign(left, right);
 
-                    assigns.Add(assign);
+                    if (key.MapType == MapType.SelectedProperties)
+                    {
+                        // if(properties.Contains(propertyName))
+                        assigns.Add(CreateContainsCheckExpression(fromProp.Name, propertiesParam, assign));
+                    }
+                    else if (key.MapType == MapType.ExcludedProperties)
+                    {
+                        // if(!properties.Contains(propertyName))
+                        assigns.Add(CreateNotContainsCheckExpression(fromProp.Name, propertiesParam, assign));
+                    }
+                    else
+                    {
+                        assigns.Add(assign);
+                    }
                 }
             }
 
             var body = Expression.Block(assigns);
 
-            var fucn = Expression.Lambda(body, false, fromParam, toParam).Compile();
+            var fucn = key.MapType == MapType.AllProperties ?
+                Expression.Lambda(body, false, fromParam, toParam).Compile() :
+                Expression.Lambda(body, false, fromParam, toParam, propertiesParam).Compile();
 
             _cache[key] = fucn;
         }
 
         return _cache[key];
+    }
+
+    private static Expression CreateContainsCheckExpression(string propertyName, ParameterExpression propertiesParam, Expression expression)
+    {
+        MethodInfo containsMethod = GetContainsMethod();
+
+        // properties.Contains(propertyName)
+        var containsCall = Expression.Call(containsMethod, propertiesParam, Expression.Constant(propertyName));
+
+        // if(properties.Contains(propertyName))
+        var ifBlock = Expression.IfThen(containsCall, expression);
+
+        return ifBlock;
+    }
+
+    private static Expression CreateNotContainsCheckExpression(string propertyName, ParameterExpression propertiesParam, Expression expression)
+    {
+        MethodInfo containsMethod = GetContainsMethod();
+
+        // properties.Contains(propertyName)
+        var containsCall = Expression.Call(containsMethod, propertiesParam, Expression.Constant(propertyName));
+
+        // !properties.Contains(propertyName)
+        var notContains = Expression.Not(containsCall);
+
+        // if(!properties.Contains(propertyName))
+        var ifBlock = Expression.IfThen(notContains, expression);
+
+        return ifBlock;
+    }
+
+    private static MethodInfo GetContainsMethod()
+    {
+        return typeof(Enumerable)
+            .GetMethods()
+            .First(m => m.Name == "Contains" && m.GetParameters().Length == 2)
+            .MakeGenericMethod(typeof(string));
     }
 
     public TTarget Map<TSource, TTarget>(TSource source) where TTarget : class, new()
@@ -98,9 +165,64 @@ public class ExpressionMapper : IMapper
 
     public void Map<TSource, TTarget>(TSource source, TTarget target) where TTarget : class
     {
-        var key = (from: typeof(TSource), to: typeof(TTarget));
+        var key = (from: typeof(TSource), to: typeof(TTarget), MapType.AllProperties);
 
         var entry = GetOrAdd(key);
         entry.DynamicInvoke(source, target);
+    }
+
+    public TTarget MapProperties<TSource, TTarget>(TSource source, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class, new()
+    {
+        var result = new TTarget();
+        MapProperties(source, result, propertiesSelector);
+        return result;
+    }
+
+    public void MapProperties<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
+    {
+        var properties = propertiesSelector.Body.GetMemberNames().ToArray();
+
+        if (properties == null || properties.Length == 0)
+        {
+            return;
+        }
+
+        var key = (from: typeof(TSource), to: typeof(TTarget), MapType.SelectedProperties);
+
+        var entry = GetOrAdd(key);
+        entry.DynamicInvoke(source, target, properties);
+    }
+
+    public TTarget MapExclude<TSource, TTarget>(TSource source, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class, new()
+    {
+        var result = new TTarget();
+        MapExclude(source, result, propertiesSelector);
+        return result;
+    }
+
+    public void MapExclude<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
+    {
+        var properties = propertiesSelector.Body.GetMemberNames().ToArray();
+
+        if (properties == null || properties.Length == 0)
+        {
+            var key = (from: typeof(TSource), to: typeof(TTarget), MapType.AllProperties);
+            var entry = GetOrAdd(key);
+            entry.DynamicInvoke(source, target);
+            return;
+        }
+        else
+        {
+            var key = (from: typeof(TSource), to: typeof(TTarget), MapType.ExcludedProperties);
+            var entry = GetOrAdd(key);
+            entry.DynamicInvoke(source, target, properties);
+        }
+    }
+
+    private enum MapType
+    {
+        AllProperties,
+        SelectedProperties,
+        ExcludedProperties
     }
 }
