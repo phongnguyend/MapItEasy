@@ -13,26 +13,26 @@ IMapper _mapper = new ExpressionMapper();
 [Fact]
 public void ReturnNewObject()
 {
-	var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
 
-	var target = _mapper.Map<A, B>(source);
+    var target = _mapper.Map<A, B>(source);
 
-	Assert.Equal(1, target.Id);
-	Assert.Equal("abc1", target.Name);
-	Assert.Equal("xyz1", target.Description);
+    Assert.Equal(1, target.Id);
+    Assert.Equal("abc1", target.Name);
+    Assert.Equal("xyz1", target.Description);
 }
 
 [Fact]
 public void MapExistingObject()
 {
-	var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
-	var target = new B();
+    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+    var target = new B();
 
-	_mapper.Map(source, target);
+    _mapper.Map(source, target);
 
-	Assert.Equal(1, target.Id);
-	Assert.Equal("abc1", target.Name);
-	Assert.Equal("xyz1", target.Description);
+    Assert.Equal(1, target.Id);
+    Assert.Equal("abc1", target.Name);
+    Assert.Equal("xyz1", target.Description);
 }
 ```
 
@@ -41,14 +41,14 @@ public void MapExistingObject()
 [Fact]
 public void MapProperties()
 {
-	var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
-	var target = new B();
+    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+    var target = new B();
 
-	_mapper.MapProperties(source, target, x => new { x.Name });
+    _mapper.MapProperties(source, target, x => new { x.Name });
 
-	Assert.Equal(0, target.Id);
-	Assert.Equal("abc1", target.Name);
-	Assert.Null(target.Description);
+    Assert.Equal(0, target.Id);
+    Assert.Equal("abc1", target.Name);
+    Assert.Null(target.Description);
 }
 ```
 
@@ -57,14 +57,14 @@ public void MapProperties()
 [Fact]
 public void MapExclude()
 {
-	var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
-	var target = new B();
+    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+    var target = new B();
 
-	_mapper.MapExclude(source, target, x => new { x.Name });
+    _mapper.MapExclude(source, target, x => new { x.Name });
 
-	Assert.Equal(1, target.Id);
-	Assert.Null(target.Name);
-	Assert.Equal("xyz1", target.Description);
+    Assert.Equal(1, target.Id);
+    Assert.Null(target.Name);
+    Assert.Equal("xyz1", target.Description);
 }
 ```
 
