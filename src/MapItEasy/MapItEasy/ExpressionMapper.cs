@@ -14,16 +14,16 @@ public class ExpressionMapper : IMapper
 
     private static Delegate GetOrAdd((Type From, Type To, MapType MapType) key)
     {
-        if (_cache.ContainsKey(key))
+        if (_cache.TryGetValue(key, out Delegate? value1))
         {
-            return _cache[key];
+            return value1;
         }
 
         lock (_lock)
         {
-            if (_cache.ContainsKey(key))
+            if (_cache.TryGetValue(key, out Delegate? value2))
             {
-                return _cache[key];
+                return value2;
             }
 
             var fromParam = Expression.Parameter(key.From);

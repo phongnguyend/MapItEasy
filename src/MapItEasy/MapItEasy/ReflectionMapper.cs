@@ -14,16 +14,16 @@ public class ReflectionMapper : IMapper
 
     private static List<(string Name, MethodInfo Get, MethodInfo Set)> GetOrAdd((Type From, Type To) key)
     {
-        if (_cache.ContainsKey(key))
+        if (_cache.TryGetValue(key, out List<(string Name, MethodInfo Get, MethodInfo Set)>? value1))
         {
-            return _cache[key];
+            return value1;
         }
 
         lock (_lock)
         {
-            if (_cache.ContainsKey(key))
+            if (_cache.TryGetValue(key, out List<(string Name, MethodInfo Get, MethodInfo Set)>? value2))
             {
-                return _cache[key];
+                return value2;
             }
 
             var fromProps = key.From.GetProperties();
