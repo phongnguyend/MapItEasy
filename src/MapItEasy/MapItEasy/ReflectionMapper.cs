@@ -5,6 +5,9 @@ namespace MapItEasy;
 
 public class ReflectionMapper : IMapper
 {
+    private static readonly ReflectionMapper _instance = new();
+    public static ReflectionMapper Instance => _instance;
+
     static readonly object _lock = new();
 
     private static readonly Dictionary<(Type From, Type To), List<(string Name, MethodInfo Get, MethodInfo Set)>> _cache = [];

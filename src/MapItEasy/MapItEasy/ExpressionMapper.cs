@@ -5,6 +5,9 @@ namespace MapItEasy;
 
 public class ExpressionMapper : IMapper
 {
+    private static readonly ExpressionMapper _instance = new();
+    public static ExpressionMapper Instance => _instance;
+
     static readonly object _lock = new();
 
     private static readonly Dictionary<(Type From, Type To, MapType MapType), Delegate> _cache = [];

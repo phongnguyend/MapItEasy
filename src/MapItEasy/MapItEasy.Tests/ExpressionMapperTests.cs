@@ -2,7 +2,7 @@ namespace MapItEasy.Tests;
 
 public class ExpressionMapperTests : BaseMapperTests
 {
-    public ExpressionMapperTests() : base(new ExpressionMapper())
+    public ExpressionMapperTests() : base(ExpressionMapper.Instance)
     {
     }
 }

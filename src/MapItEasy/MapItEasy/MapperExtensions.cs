@@ -2,7 +2,7 @@
 
 public static class MapperExtensions
 {
-    private static readonly IMapper _mapper = new ExpressionMapper();
+    private static readonly IMapper _mapper = ExpressionMapper.Instance;
 
     public static TTarget Map<TSource, TTarget>(this TSource source) where TTarget : class, new()
     {
