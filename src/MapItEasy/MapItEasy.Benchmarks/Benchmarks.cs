@@ -25,6 +25,7 @@ public class Benchmarks
     public void ReflectionMapper_Map()
     {
         var target = new B();
+
         for (var i = 0; i < ITERATIONS; i++)
         {
             ReflectionMapper.Instance.Map(_source, target);

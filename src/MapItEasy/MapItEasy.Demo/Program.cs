@@ -13,6 +13,10 @@ var email = new Email
 ReturnNewObject();
 MapExistingObject();
 
+var code = CodeGenerator.GenerateMappingMethods<Email, ArchivedEmail>("source", "target");
+
+Console.WriteLine(code);
+
 Console.ReadLine();
 
 void ReturnNewObject()
