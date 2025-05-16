@@ -28,12 +28,12 @@ public class CodeGenerator
         method3.AppendLine("{");
 
         var method4 = new StringBuilder();
-        method4.AppendLine($"public {toType.Name} Create{toType.Name}From{fromType.Name}({fromType.Name} {sourceVariableName})");
+        method4.AppendLine($"public static {toType.Name} Create{toType.Name}From{fromType.Name}({fromType.Name} {sourceVariableName})");
         method4.AppendLine("{");
         method4.AppendLine($"\treturn new {toType.Name} " + "{");
 
         var method5 = new StringBuilder();
-        method5.AppendLine($"public void Map{fromType.Name}To{toType.Name}({fromType.Name} {sourceVariableName}, {toType.Name} {targetVariableName})");
+        method5.AppendLine($"public static void Map{fromType.Name}To{toType.Name}({fromType.Name} {sourceVariableName}, {toType.Name} {targetVariableName})");
         method5.AppendLine("{");
 
         foreach (var from in fromProps)
@@ -76,14 +76,31 @@ public class CodeGenerator
 
         method5.AppendLine("}");
 
-        return method1.ToString()
+
+        var class1 = new StringBuilder();
+        class1.AppendLine($"public partial class {fromType.Name}");
+        class1.AppendLine("{");
+        class1.AppendLine(string.Join("\n", method1.ToString().Split('\n').Select(x => $"\t{x}")));
+        class1.AppendLine(string.Join("\n", method2.ToString().Split('\n').Select(x => $"\t{x}")));
+        class1.AppendLine("}");
+
+        var class2 = new StringBuilder();
+        class2.AppendLine($"public partial class {toType.Name}");
+        class2.AppendLine("{");
+        class2.AppendLine(string.Join("\n", method3.ToString().Split('\n').Select(x => $"\t{x}")));
+        class2.AppendLine("}");
+
+        var class3 = new StringBuilder();
+        class3.AppendLine($"public partial class MappingExtensions");
+        class3.AppendLine("{");
+        class3.AppendLine(string.Join("\n", method4.ToString().Split('\n').Select(x => $"\t{x}")));
+        class3.AppendLine(string.Join("\n", method5.ToString().Split('\n').Select(x => $"\t{x}")));
+        class3.AppendLine("}");
+
+        return class1.ToString()
             + Environment.NewLine
-            + method2.ToString()
+            + class2.ToString()
             + Environment.NewLine
-            + method3.ToString()
-            + Environment.NewLine
-            + method4.ToString()
-            + Environment.NewLine
-            + method5.ToString();
+            + class3.ToString();
     }
 }
