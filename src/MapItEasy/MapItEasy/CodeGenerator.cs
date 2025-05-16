@@ -6,7 +6,7 @@ public class CodeGenerator
 {
     private static readonly Dictionary<(Type From, Type To), List<string>> _cache = [];
 
-    public static string GenerateMappingMethods<TSource, TTarget>(string sourceVariableName, string targetVariableName)
+    public static string GenerateMappingCode<TSource, TTarget>(string sourceVariableName = "source", string targetVariableName = "target")
     {
         var fromType = typeof(TSource);
         var toType = typeof(TTarget);
@@ -102,5 +102,12 @@ public class CodeGenerator
             + class2.ToString()
             + Environment.NewLine
             + class3.ToString();
+    }
+
+    public static void GenerateMappingFile<TSource, TTarget>(string sourceVariableName = "source", string targetVariableName = "target", string? fileName = null)
+    {
+        var code = GenerateMappingCode<TSource, TTarget>(sourceVariableName, targetVariableName);
+
+        File.WriteAllText(fileName ?? $"{typeof(TSource).Name}To{typeof(TTarget).Name}.generated.cs", code);
     }
 }
