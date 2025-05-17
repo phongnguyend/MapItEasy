@@ -1,0 +1,60 @@
+﻿public partial class A
+{
+	public void MapToB(B target)
+	{
+		target.Id = Id;
+		target.Name = Name;
+		target.Description = Description;
+		target.NotNullToNull = NotNullToNull;
+		target.NullToNotNull = NullToNotNull;
+	}
+	
+	public B CreateB()
+	{
+		return new B {
+			Id = Id,
+			Name = Name,
+			Description = Description,
+			NotNullToNull = NotNullToNull,
+			NullToNotNull = NullToNotNull,
+		};
+	}
+	
+}
+
+public partial class B
+{
+	public void FromA(A source)
+	{
+		Id = source.Id;
+		Name = source.Name;
+		Description = source.Description;
+		NotNullToNull = source.NotNullToNull;
+		NullToNotNull = source.NullToNotNull;
+	}
+	
+}
+
+public partial class MappingExtensions
+{
+	public static B CreateBFromA(A source)
+	{
+		return new B {
+			Id = source.Id,
+			Name = source.Name,
+			Description = source.Description,
+			NotNullToNull = source.NotNullToNull,
+			NullToNotNull = source.NullToNotNull,
+		};
+	}
+	
+	public static void MapAToB(A source, B target)
+	{
+		target.Id = source.Id;
+		target.Name = source.Name;
+		target.Description = source.Description;
+		target.NotNullToNull = source.NotNullToNull;
+		target.NullToNotNull = source.NullToNotNull;
+	}
+	
+}
