@@ -1,8 +1,23 @@
+# MapItEasy
+
 Simple and fast object mapper (using Expression Trees API) to map data between 2 objects which have identical (or nearly identical) shapes.
 
-## Use Cases:
+## Use Cases
 - Cloning.
 - Data archiving (moving data from the active table to the archived table).
+
+## Installation
+
+Install the package from NuGet:
+
+```bash
+dotnet add package MapItEasy
+```
+
+Or using the NuGet Package Manager in Visual Studio:
+```
+Install-Package MapItEasy
+```
 
 ## Examples
 ```c#
