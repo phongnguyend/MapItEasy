@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MapItEasy;
@@ -6,26 +7,15 @@ namespace MapItEasy;
 public class ExpressionMapper : IMapper
 {
     private static readonly ExpressionMapper _instance = new();
+
     public static ExpressionMapper Instance => _instance;
 
-    static readonly object _lock = new();
-
-    private static readonly Dictionary<(Type From, Type To, MapType MapType), Delegate> _cache = [];
+    private static readonly ConcurrentDictionary<(Type From, Type To, MapType MapType), Delegate> _cache = [];
 
     private static Delegate GetOrAdd((Type From, Type To, MapType MapType) key)
     {
-        if (_cache.TryGetValue(key, out Delegate? value1))
+        return _cache.GetOrAdd(key, (key) =>
         {
-            return value1;
-        }
-
-        lock (_lock)
-        {
-            if (_cache.TryGetValue(key, out Delegate? value2))
-            {
-                return value2;
-            }
-
             var fromParam = Expression.Parameter(key.From);
             var toParam = Expression.Parameter(key.To);
             var propertiesParam = Expression.Parameter(typeof(string[]));
@@ -116,10 +106,8 @@ public class ExpressionMapper : IMapper
                 Expression.Lambda(body, false, fromParam, toParam).Compile() :
                 Expression.Lambda(body, false, fromParam, toParam, propertiesParam).Compile();
 
-            _cache[key] = fucn;
-        }
-
-        return _cache[key];
+            return fucn;
+        });
     }
 
     private static Expression CreateContainsCheckExpression(string propertyName, ParameterExpression propertiesParam, Expression expression)

@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MapItEasy;
@@ -6,26 +7,15 @@ namespace MapItEasy;
 public class ReflectionMapper : IMapper
 {
     private static readonly ReflectionMapper _instance = new();
+
     public static ReflectionMapper Instance => _instance;
 
-    static readonly object _lock = new();
-
-    private static readonly Dictionary<(Type From, Type To), List<(string Name, MethodInfo Get, MethodInfo Set)>> _cache = [];
+    private static readonly ConcurrentDictionary<(Type From, Type To), List<(string Name, MethodInfo Get, MethodInfo Set)>> _cache = [];
 
     private static List<(string Name, MethodInfo Get, MethodInfo Set)> GetOrAdd((Type From, Type To) key)
     {
-        if (_cache.TryGetValue(key, out List<(string Name, MethodInfo Get, MethodInfo Set)>? value1))
+        return _cache.GetOrAdd(key, (key) =>
         {
-            return value1;
-        }
-
-        lock (_lock)
-        {
-            if (_cache.TryGetValue(key, out List<(string Name, MethodInfo Get, MethodInfo Set)>? value2))
-            {
-                return value2;
-            }
-
             var fromProps = key.From.GetProperties();
             var toProps = key.To.GetProperties();
 
@@ -51,10 +41,8 @@ public class ReflectionMapper : IMapper
                 entry.Add((from.Name, from.GetMethod, to.SetMethod));
             }
 
-            _cache[key] = entry;
-        }
-
-        return _cache[key];
+            return entry;
+        });
     }
 
     public TTarget Map<TSource, TTarget>(TSource source) where TTarget : class, new()

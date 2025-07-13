@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Text;
 
 namespace MapItEasy;
 
 public class CodeGenerator
 {
-    private static readonly Dictionary<(Type From, Type To), List<string>> _cache = [];
+    private static readonly ConcurrentDictionary<(Type From, Type To), List<string>> _cache = [];
 
     public static string GenerateMappingCode<TSource, TTarget>(string sourceVariableName = "source", string targetVariableName = "target")
     {
