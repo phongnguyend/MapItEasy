@@ -1,0 +1,35 @@
+name: .Net Build MapItEasy
+
+on:
+  push:
+    paths: 
+      - 'src/MapItEasy/**'
+  pull_request:
+    paths: 
+      - 'src/MapItEasy/**'
+  workflow_dispatch:
+  
+jobs:
+  build:
+
+    defaults: 
+      run:
+        working-directory: src/MapItEasy
+        
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+  
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 8.0.100
+    - name: Build
+      run: dotnet build --configuration Release 
+
+    - name: Upload MapItEasy
+      uses: actions/upload-artifact@v4
+      with:
+        name: MapItEasy
+        path: src/MapItEasy/MapItEasy/bin/Release/*.nupkg

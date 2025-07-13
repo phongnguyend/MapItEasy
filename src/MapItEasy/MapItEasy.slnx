@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="MapItEasy.Benchmarks/MapItEasy.Benchmarks.csproj" />
-  <Project Path="MapItEasy.Demo/MapItEasy.Demo.csproj" />
-  <Project Path="MapItEasy.Tests/MapItEasy.Tests.csproj" />
-  <Project Path="MapItEasy/MapItEasy.csproj" />
-</Solution>
