@@ -37,3 +37,25 @@ jobs:
       with:
         name: MapItEasy
         path: src/MapItEasy/MapItEasy/bin/Release/*.nupkg
+
+    - name: Upload MapItEasy.Generators
+      uses: actions/upload-artifact@v4
+      with:
+        name: MapItEasy.Generators
+        path: src/MapItEasy.Generators/bin/Release/*.nupkg
+        
+    - name: Publish MapItEasy to NuGet
+      if: startsWith(github.ref, 'refs/tags/releases/v')
+      run: |
+        dotnet nuget push "MapItEasy/bin/Release/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+
+    - name: Publish MapItEasy.Generators to NuGet
+      if: startsWith(github.ref, 'refs/tags/releases/v')
+      run: |
+        dotnet nuget push "MapItEasy.Generators/bin/Release/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate

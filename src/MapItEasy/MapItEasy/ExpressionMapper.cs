@@ -147,67 +147,51 @@ public class ExpressionMapper : IMapper
             .MakeGenericMethod(typeof(string));
     }
 
-    public TTarget Map<TSource, TTarget>(TSource source) where TTarget : class, new()
+    public TTarget Map<TSource, TTarget>(TSource source, MappingOptions<TSource>? options = null) where TTarget : class, new()
     {
         var result = new TTarget();
-        Map(source, result);
+        Map(source, result, options);
         return result;
     }
 
-    public void Map<TSource, TTarget>(TSource source, TTarget target) where TTarget : class
+    public void Map<TSource, TTarget>(TSource source, TTarget target, MappingOptions<TSource>? options = null) where TTarget : class
     {
-        var key = (from: typeof(TSource), to: typeof(TTarget), MapType.AllProperties);
-
-        var entry = GetOrAdd(key);
-        entry.DynamicInvoke(source, target);
-    }
-
-    public TTarget MapProperties<TSource, TTarget>(TSource source, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class, new()
-    {
-        var result = new TTarget();
-        MapProperties(source, result, propertiesSelector);
-        return result;
-    }
-
-    public void MapProperties<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
-    {
-        var properties = propertiesSelector.Body.GetMemberNames().ToArray();
-
-        if (properties == null || properties.Length == 0)
+        if (options != null)
         {
-            return;
+            options.Validate();
+
+            if (options.IncludeProperties != null)
+            {
+                var properties = options.IncludeProperties.Body.GetMemberNames().ToArray();
+
+                if (properties == null || properties.Length == 0)
+                {
+                    return;
+                }
+
+                var key = (from: typeof(TSource), to: typeof(TTarget), MapType.SelectedProperties);
+                var entry = GetOrAdd(key);
+                entry.DynamicInvoke(source, target, properties);
+                return;
+            }
+            
+            if (options.ExcludeProperties != null)
+            {
+                var properties = options.ExcludeProperties.Body.GetMemberNames().ToArray();
+
+                if (properties != null && properties.Length > 0)
+                {
+                    var key = (from: typeof(TSource), to: typeof(TTarget), MapType.ExcludedProperties);
+                    var entry = GetOrAdd(key);
+                    entry.DynamicInvoke(source, target, properties);
+                    return;
+                }
+            }
         }
 
-        var key = (from: typeof(TSource), to: typeof(TTarget), MapType.SelectedProperties);
-
-        var entry = GetOrAdd(key);
-        entry.DynamicInvoke(source, target, properties);
-    }
-
-    public TTarget MapExclude<TSource, TTarget>(TSource source, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class, new()
-    {
-        var result = new TTarget();
-        MapExclude(source, result, propertiesSelector);
-        return result;
-    }
-
-    public void MapExclude<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
-    {
-        var properties = propertiesSelector.Body.GetMemberNames().ToArray();
-
-        if (properties == null || properties.Length == 0)
-        {
-            var key = (from: typeof(TSource), to: typeof(TTarget), MapType.AllProperties);
-            var entry = GetOrAdd(key);
-            entry.DynamicInvoke(source, target);
-            return;
-        }
-        else
-        {
-            var key = (from: typeof(TSource), to: typeof(TTarget), MapType.ExcludedProperties);
-            var entry = GetOrAdd(key);
-            entry.DynamicInvoke(source, target, properties);
-        }
+        var allKey = (from: typeof(TSource), to: typeof(TTarget), MapType.AllProperties);
+        var allEntry = GetOrAdd(allKey);
+        allEntry.DynamicInvoke(source, target);
     }
 
     private enum MapType

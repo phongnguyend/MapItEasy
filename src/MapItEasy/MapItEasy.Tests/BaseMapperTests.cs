@@ -95,7 +95,7 @@ public abstract class BaseMapperTests
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
-        _mapper.MapProperties(source, target, x => new { x.Name });
+        _mapper.Map(source, target, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
 
         Assert.Equal(0, target.Id);
         Assert.Equal("abc1", target.Name);
@@ -108,7 +108,7 @@ public abstract class BaseMapperTests
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
-        _mapper.MapProperties(source, target, x => new { });
+        _mapper.Map(source, target, new MappingOptions<A> { IncludeProperties = x => new { } });
 
         Assert.Equal(0, target.Id);
         Assert.Null(target.Name);
@@ -121,7 +121,7 @@ public abstract class BaseMapperTests
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
-        _mapper.MapExclude(source, target, x => new { x.Name });
+        _mapper.Map(source, target, new MappingOptions<A> { ExcludeProperties = x => new { x.Name } });
 
         Assert.Equal(1, target.Id);
         Assert.Null(target.Name);
@@ -134,11 +134,25 @@ public abstract class BaseMapperTests
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
-        _mapper.MapExclude(source, target, x => new { });
+        _mapper.Map(source, target, new MappingOptions<A> { ExcludeProperties = x => new { } });
 
         Assert.Equal(1, target.Id);
         Assert.Equal("abc1", target.Name);
         Assert.Equal("xyz1", target.Description);
+    }
+
+    [Fact]
+    public void BothIncludeAndExclude_Should_ThrowException()
+    {
+        var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+        var target = new B();
+
+        Assert.Throws<InvalidOperationException>(() =>
+            _mapper.Map(source, target, new MappingOptions<A>
+            {
+                IncludeProperties = x => new { x.Name },
+                ExcludeProperties = x => new { x.Description }
+            }));
     }
 
     public class A

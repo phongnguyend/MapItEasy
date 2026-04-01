@@ -19,68 +19,131 @@ Or using the NuGet Package Manager in Visual Studio:
 Install-Package MapItEasy
 ```
 
-## Examples
-```c#
-IMapper _mapper = new ExpressionMapper();
-```
-### Map all possible properties
-```c#
-[Fact]
-public void ReturnNewObject()
-{
-    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+## Getting Started
 
-    var target = _mapper.Map<A, B>(source);
+### Using `IMapper`
 
-    Assert.Equal(1, target.Id);
-    Assert.Equal("abc1", target.Name);
-    Assert.Equal("xyz1", target.Description);
-}
-
-[Fact]
-public void MapExistingObject()
-{
-    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
-    var target = new B();
-
-    _mapper.Map(source, target);
-
-    Assert.Equal(1, target.Id);
-    Assert.Equal("abc1", target.Name);
-    Assert.Equal("xyz1", target.Description);
-}
+```csharp
+IMapper mapper = new ExpressionMapper();
+// or
+IMapper mapper = new ReflectionMapper();
 ```
 
-### Map all possible selected properties
-```c#
-[Fact]
-public void MapProperties()
+#### Map all properties (return new object)
+```csharp
+var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+
+var target = mapper.Map<A, B>(source);
+```
+
+#### Map all properties (existing object)
+```csharp
+var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+var target = new B();
+
+mapper.Map(source, target);
+```
+
+#### Map only selected properties
+```csharp
+var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+var target = new B();
+
+mapper.Map(source, target, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
+// target.Id == 0, target.Name == "abc1", target.Description == null
+```
+
+#### Map all properties except selected ones
+```csharp
+var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+var target = new B();
+
+mapper.Map(source, target, new MappingOptions<A> { ExcludeProperties = x => new { x.Name } });
+// target.Id == 1, target.Name == null, target.Description == "xyz1"
+```
+
+> **Note:** `IncludeProperties` and `ExcludeProperties` cannot be used together. Doing so will throw an `InvalidOperationException`.
+
+### Using Extension Methods
+
+`MapperExtensions` provides convenient extension methods using `ExpressionMapper` under the hood:
+
+```csharp
+var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
+
+// Return new object
+var target = source.Map<A, B>();
+
+// Map to existing object
+var target2 = new B();
+source.Map(target2);
+
+// With options
+source.Map(target2, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
+```
+
+## Source Generator
+
+For **zero-reflection, compile-time mapping**, install the source generator package:
+
+```bash
+dotnet add package MapItEasy.Generators
+```
+
+Or using the NuGet Package Manager in Visual Studio:
+```
+Install-Package MapItEasy.Generators
+```
+
+Define `partial` methods decorated with the `[GeneratedMapping]` attribute, and the source generator will provide the implementation at compile time:
+
+```csharp
+using MapItEasy;
+
+public static partial class MappingExtensions
 {
-    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
-    var target = new B();
+    // Return a new mapped object
+    [GeneratedMapping]
+    public static partial B MapToB(A source);
 
-    _mapper.MapProperties(source, target, x => new { x.Name });
+    // Map to an existing object
+    [GeneratedMapping]
+    public static partial void MapToB(A source, B target);
 
-    Assert.Equal(0, target.Id);
-    Assert.Equal("abc1", target.Name);
-    Assert.Null(target.Description);
+    // Extension method - return a new mapped object
+    [GeneratedMapping]
+    public static partial B ToB(this A source);
+
+    // Extension method - map to an existing object
+    [GeneratedMapping]
+    public static partial void ToB(this A source, B target);
+
+    // With MappingOptions support
+    [GeneratedMapping]
+    public static partial B MapToB(A source, MappingOptions<A>? options = null);
+
+    [GeneratedMapping]
+    public static partial void MapToB(A source, B target, MappingOptions<A>? options = null);
 }
 ```
 
-### Map all possible properties except selected properties
-```c#
-[Fact]
-public void MapExclude()
-{
-    var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
-    var target = new B();
+Usage:
 
-    _mapper.MapExclude(source, target, x => new { x.Name });
+```csharp
+var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
 
-    Assert.Equal(1, target.Id);
-    Assert.Null(target.Name);
-    Assert.Equal("xyz1", target.Description);
-}
+// Static call
+var target = MappingExtensions.MapToB(source);
+
+// Extension method call
+var target2 = source.ToB();
+
+// Map to existing object via extension method
+var target3 = new B();
+source.ToB(target3);
+
+// With MappingOptions
+var target4 = MappingExtensions.MapToB(source, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
 ```
 
 ## License

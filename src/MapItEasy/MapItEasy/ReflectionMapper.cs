@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MapItEasy;
@@ -45,15 +44,32 @@ public class ReflectionMapper : IMapper
         });
     }
 
-    public TTarget Map<TSource, TTarget>(TSource source) where TTarget : class, new()
+    public TTarget Map<TSource, TTarget>(TSource source, MappingOptions<TSource>? options = null) where TTarget : class, new()
     {
         var result = new TTarget();
-        Map(source, result);
+        Map(source, result, options);
         return result;
     }
 
-    public void Map<TSource, TTarget>(TSource source, TTarget target) where TTarget : class
+    public void Map<TSource, TTarget>(TSource source, TTarget target, MappingOptions<TSource>? options = null) where TTarget : class
     {
+        if (options != null)
+        {
+            options.Validate();
+
+            if (options.IncludeProperties != null)
+            {
+                MapInclude(source, target, options.IncludeProperties.Body.GetMemberNames().ToArray());
+                return;
+            }
+
+            if (options.ExcludeProperties != null)
+            {
+                MapExclude(source, target, options.ExcludeProperties.Body.GetMemberNames().ToArray());
+                return;
+            }
+        }
+
         var key = (from: typeof(TSource), to: typeof(TTarget));
 
         var entry = GetOrAdd(key);
@@ -64,31 +80,7 @@ public class ReflectionMapper : IMapper
         }
     }
 
-    public TTarget MapProperties<TSource, TTarget>(TSource source, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class, new()
-    {
-        var result = new TTarget();
-        MapProperties(source, result, propertiesSelector);
-        return result;
-    }
-
-    public void MapProperties<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
-    {
-        MapProperties(source, target, propertiesSelector.Body.GetMemberNames().ToArray());
-    }
-
-    public TTarget MapExclude<TSource, TTarget>(TSource source, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class, new()
-    {
-        var result = new TTarget();
-        MapExclude(source, result, propertiesSelector);
-        return result;
-    }
-
-    public void MapExclude<TSource, TTarget>(TSource source, TTarget target, Expression<Func<TSource, object>> propertiesSelector) where TTarget : class
-    {
-        MapExclude(source, target, propertiesSelector.Body.GetMemberNames().ToArray());
-    }
-
-    private void MapProperties<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
+    private void MapInclude<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
     {
         if (properties == null || properties.Length == 0)
         {
