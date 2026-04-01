@@ -1,6 +1,6 @@
 # MapItEasy
 
-Simple and fast object mapper (using Expression Trees API) to map data between 2 objects which have identical (or nearly identical) shapes.
+Simple and fast object mapper (using Expression Trees API and Source Generators) to map data between 2 objects which have identical (or nearly identical) shapes.
 
 ## Use Cases
 - Cloning.
