@@ -162,28 +162,24 @@ public class ExpressionMapper : IMapper
 
             if (options.IncludeProperties != null)
             {
-                var properties = options.IncludeProperties;
-
-                if (properties == null || properties.Count == 0)
+                if (options.IncludeProperties.Count == 0)
                 {
                     return;
                 }
 
                 var key = (from: typeof(TSource), to: typeof(TTarget), MapType.SelectedProperties);
                 var entry = GetOrAdd(key);
-                entry.DynamicInvoke(source, target, properties);
+                entry.DynamicInvoke(source, target, options.IncludeProperties);
                 return;
             }
             
             if (options.ExcludeProperties != null)
             {
-                var properties = options.ExcludeProperties;
-
-                if (properties != null && properties.Count > 0)
+                if (options.ExcludeProperties.Count > 0)
                 {
                     var key = (from: typeof(TSource), to: typeof(TTarget), MapType.ExcludedProperties);
                     var entry = GetOrAdd(key);
-                    entry.DynamicInvoke(source, target, properties);
+                    entry.DynamicInvoke(source, target, options.ExcludeProperties);
                     return;
                 }
             }
