@@ -59,13 +59,13 @@ public class ReflectionMapper : IMapper
 
             if (options.IncludeProperties != null)
             {
-                MapInclude(source, target, options.IncludeProperties.Body.GetMemberNames().ToArray());
+                MapInclude(source, target, options.IncludeProperties);
                 return;
             }
 
             if (options.ExcludeProperties != null)
             {
-                MapExclude(source, target, options.ExcludeProperties.Body.GetMemberNames().ToArray());
+                MapExclude(source, target, options.ExcludeProperties);
                 return;
             }
         }
@@ -80,9 +80,9 @@ public class ReflectionMapper : IMapper
         }
     }
 
-    private void MapInclude<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
+    private void MapInclude<TSource, TTarget>(TSource source, TTarget target, IReadOnlyCollection<string> properties) where TTarget : class
     {
-        if (properties == null || properties.Length == 0)
+        if (properties == null || properties.Count == 0)
         {
             return;
         }
@@ -102,7 +102,7 @@ public class ReflectionMapper : IMapper
         }
     }
 
-    private void MapExclude<TSource, TTarget>(TSource source, TTarget target, string[] properties) where TTarget : class
+    private void MapExclude<TSource, TTarget>(TSource source, TTarget target, IReadOnlyCollection<string> properties) where TTarget : class
     {
         var key = (from: typeof(TSource), to: typeof(TTarget));
 

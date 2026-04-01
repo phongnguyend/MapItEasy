@@ -18,7 +18,7 @@ public class ExpressionMapper : IMapper
         {
             var fromParam = Expression.Parameter(key.From);
             var toParam = Expression.Parameter(key.To);
-            var propertiesParam = Expression.Parameter(typeof(string[]));
+            var propertiesParam = Expression.Parameter(typeof(IReadOnlyCollection<string>));
 
             List<Expression> assigns = [];
             foreach (var fromProp in key.From.GetProperties())
@@ -162,9 +162,9 @@ public class ExpressionMapper : IMapper
 
             if (options.IncludeProperties != null)
             {
-                var properties = options.IncludeProperties.Body.GetMemberNames().ToArray();
+                var properties = options.IncludeProperties;
 
-                if (properties == null || properties.Length == 0)
+                if (properties == null || properties.Count == 0)
                 {
                     return;
                 }
@@ -177,9 +177,9 @@ public class ExpressionMapper : IMapper
             
             if (options.ExcludeProperties != null)
             {
-                var properties = options.ExcludeProperties.Body.GetMemberNames().ToArray();
+                var properties = options.ExcludeProperties;
 
-                if (properties != null && properties.Length > 0)
+                if (properties != null && properties.Count > 0)
                 {
                     var key = (from: typeof(TSource), to: typeof(TTarget), MapType.ExcludedProperties);
                     var entry = GetOrAdd(key);

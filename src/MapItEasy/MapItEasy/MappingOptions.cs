@@ -4,9 +4,25 @@ namespace MapItEasy;
 
 public class MappingOptions<TSource>
 {
-    public Expression<Func<TSource, object>>? IncludeProperties { get; set; }
+    public Expression<Func<TSource, object>>? Include
+    {
+        set
+        {
+            IncludeProperties = value?.Body.GetMemberNames();
+        }
+    }
 
-    public Expression<Func<TSource, object>>? ExcludeProperties { get; set; }
+    public Expression<Func<TSource, object>>? Exclude
+    {
+        set
+        {
+            ExcludeProperties = value?.Body.GetMemberNames();
+        }
+    }
+
+    public IReadOnlyCollection<string>? IncludeProperties { get; set; }
+
+    public IReadOnlyCollection<string>? ExcludeProperties { get; set; }
 
     public void Validate()
     {

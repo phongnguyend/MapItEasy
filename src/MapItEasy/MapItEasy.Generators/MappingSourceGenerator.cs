@@ -326,7 +326,7 @@ public class MappingSourceGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"            if ({optionsName}.IncludeProperties != null)");
         sb.AppendLine("            {");
-        sb.AppendLine($"                var __includeNames = global::MapItEasy.ExpressionExtensions.GetMemberNames({optionsName}.IncludeProperties.Body);");
+        sb.AppendLine($"                var __includeNames = {optionsName}.IncludeProperties;");
         sb.AppendLine();
 
         foreach (var mapping in method.Mappings)
@@ -343,7 +343,7 @@ public class MappingSourceGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"            if ({optionsName}.ExcludeProperties != null)");
         sb.AppendLine("            {");
-        sb.AppendLine($"                var __excludeNames = global::MapItEasy.ExpressionExtensions.GetMemberNames({optionsName}.ExcludeProperties.Body);");
+        sb.AppendLine($"                var __excludeNames = {optionsName}.ExcludeProperties;");
         sb.AppendLine();
 
         foreach (var mapping in method.Mappings)

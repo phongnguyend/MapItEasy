@@ -49,7 +49,7 @@ mapper.Map(source, target);
 var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
 var target = new B();
 
-mapper.Map(source, target, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
+mapper.Map(source, target, new MappingOptions<A> { Include = x => new { x.Name } });
 // target.Id == 0, target.Name == "abc1", target.Description == null
 ```
 
@@ -58,11 +58,11 @@ mapper.Map(source, target, new MappingOptions<A> { IncludeProperties = x => new 
 var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
 var target = new B();
 
-mapper.Map(source, target, new MappingOptions<A> { ExcludeProperties = x => new { x.Name } });
+mapper.Map(source, target, new MappingOptions<A> { Exclude = x => new { x.Name } });
 // target.Id == 1, target.Name == null, target.Description == "xyz1"
 ```
 
-> **Note:** `IncludeProperties` and `ExcludeProperties` cannot be used together. Doing so will throw an `InvalidOperationException`.
+> **Note:** `Include` and `Exclude` cannot be used together. Doing so will throw an `InvalidOperationException`.
 
 ### Using Extension Methods
 
@@ -79,7 +79,7 @@ var target2 = new B();
 source.Map(target2);
 
 // With options
-source.Map(target2, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
+source.Map(target2, new MappingOptions<A> { Include = x => new { x.Name } });
 ```
 
 ## Source Generator
@@ -143,7 +143,7 @@ var target3 = new B();
 source.ToB(target3);
 
 // With MappingOptions
-var target4 = MappingExtensions.MapToB(source, new MappingOptions<A> { IncludeProperties = x => new { x.Name } });
+var target4 = MappingExtensions.MapToB(source, new MappingOptions<A> { Include = x => new { x.Name } });
 ```
 
 ## License
