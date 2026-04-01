@@ -11,9 +11,20 @@ public class GeneratedMappingExtensionMethodsMapper : IMapper
 {
     public TTarget Map<TSource, TTarget>(TSource source, MappingOptions<TSource>? options = null) where TTarget : class, new()
     {
-        var target = new TTarget();
-        Map(source, target, options);
-        return target;
+        if (source is BaseMapperTests.A a)
+        {
+            var typedOptions = options as MappingOptions<BaseMapperTests.A>;
+            return (TTarget)(object)a.MapToB(typedOptions);
+        }
+        else if (source is BaseMapperTests.B b2)
+        {
+            var typedOptions = options as MappingOptions<BaseMapperTests.B>;
+            return (TTarget)(object)b2.MapToA(typedOptions);
+        }
+        else
+        {
+            throw new NotSupportedException($"Mapping from {typeof(TSource)} to {typeof(TTarget)} is not supported.");
+        }
     }
 
     public void Map<TSource, TTarget>(TSource source, TTarget target, MappingOptions<TSource>? options = null) where TTarget : class
@@ -42,4 +53,10 @@ public static partial class GeneratedMappingExtensionMethods
 
     [GeneratedMapping]
     public static partial void MapBToA(this BaseMapperTests.B source, BaseMapperTests.A target, MappingOptions<BaseMapperTests.B>? options = null);
+
+    [GeneratedMapping]
+    public static partial BaseMapperTests.B MapToB(this BaseMapperTests.A source, MappingOptions<BaseMapperTests.A>? options = null);
+
+    [GeneratedMapping]
+    public static partial BaseMapperTests.A MapToA(this BaseMapperTests.B source, MappingOptions<BaseMapperTests.B>? options = null);
 }

@@ -3,10 +3,12 @@ namespace MapItEasy.Tests;
 public abstract class BaseMapperTests
 {
     IMapper _mapper;
+    private readonly bool _ignoreOptions;
 
-    public BaseMapperTests(IMapper mapper)
+    public BaseMapperTests(IMapper mapper, bool ignoreOptions = false)
     {
         _mapper = mapper;
+        _ignoreOptions = ignoreOptions;
     }
 
     [Fact]
@@ -92,6 +94,9 @@ public abstract class BaseMapperTests
     [Fact]
     public void MapProperties()
     {
+        if (_ignoreOptions)
+            return;
+
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
@@ -105,6 +110,9 @@ public abstract class BaseMapperTests
     [Fact]
     public void MapProperties2()
     {
+        if (_ignoreOptions)
+            return;
+
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
@@ -118,6 +126,9 @@ public abstract class BaseMapperTests
     [Fact]
     public void MapExclude()
     {
+        if (_ignoreOptions)
+            return;
+
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
@@ -131,6 +142,9 @@ public abstract class BaseMapperTests
     [Fact]
     public void MapExclude2()
     {
+        if (_ignoreOptions)
+            return;
+
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
@@ -144,6 +158,9 @@ public abstract class BaseMapperTests
     [Fact]
     public void BothIncludeAndExclude_Should_ThrowException()
     {
+        if (_ignoreOptions)
+            return;
+
         var source = new A { Id = 1, Name = "abc1", Description = "xyz1" };
         var target = new B();
 
