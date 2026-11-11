@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="global.json" />
+    <File Path="notes.txt" />
+  </Folder>
+  <Project Path="MapItEasy.Benchmarks/MapItEasy.Benchmarks.csproj" />
+  <Project Path="MapItEasy.Demo/MapItEasy.Demo.csproj" />
+  <Project Path="MapItEasy.Generators/MapItEasy.Generators.csproj" />
+  <Project Path="MapItEasy.Tests/MapItEasy.Tests.csproj" />
+  <Project Path="MapItEasy/MapItEasy.csproj" />
+</Solution>

@@ -1,7 +1,9 @@
 release vx.x.x-preview.x
 releases/vx.x.x-preview.x
 
+git add -A
 git commit -m "release v2.0.0"
 git push
+
 git tag releases/v2.0.0
 git push origin releases/v2.0.0
