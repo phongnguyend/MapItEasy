@@ -42,7 +42,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MapItEasy.Generators
-        path: src/MapItEasy.Generators/bin/Release/*.nupkg
+        path: src/MapItEasy/MapItEasy.Generators/bin/Release/*.nupkg
         
     - name: Publish MapItEasy to NuGet
       if: startsWith(github.ref, 'refs/tags/releases/v')
